@@ -38,84 +38,96 @@ try {
 }
 
 const provider = new ethers.providers.JsonRpcProvider(process.env.PROVIDER_URL)
-provider.pollingInterval = 60 * 1000
 const signer = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider)
 
 ;(async () => {
-  for (const address of contractAddresses)
-    try {
-      const gtcr = new ethers.Contract(address, _GeneralizedTCR.abi, signer)
+  const successfullyUpdated = []
+  const txReverted = []
 
-      // Get the latest meta evidence events.
-      const logs = (
-        await provider.getLogs({ ...gtcr.filters.MetaEvidence(), fromBlock: 0 })
-      )
-        .slice(-2)
-        .map(log => gtcr.interface.parseLog(log))
+  // The wallet can't set the nonce properly with multiple txes in parallel.
+  // To get around this we send txes one after the other and handle nonces manually.
+  let nonce = await signer.getTransactionCount()
+  for (const address of contractAddresses) {
+    const gtcr = new ethers.Contract(address, _GeneralizedTCR.abi, signer)
+    console.info('Updating TCR at', address)
 
-      const newMetaEvidenceFiles = (
-        await Promise.all(
-          logs.map(
-            async ({ values: { _evidence } }) =>
-              (await fetch(`${process.env.IPFS_GATEWAY}${_evidence}`)).json() // Download the meta evidence files.
-          )
+    // Get the latest meta evidence events.
+    console.info(' Fetching current meta evidence...')
+    const logs = (
+      await provider.getLogs({ ...gtcr.filters.MetaEvidence(), fromBlock: 0 })
+    )
+      .slice(-2)
+      .map(log => gtcr.interface.parseLog(log))
+
+    const newMetaEvidenceFiles = (
+      await Promise.all(
+        logs.map(
+          async ({ values: { _evidence } }) =>
+            (await fetch(`${process.env.IPFS_GATEWAY}${_evidence}`)).json() // Download the meta evidence files.
         )
-      ).map(metaEvidence => {
-        // Update the evidence display URI
-        delete metaEvidence.evidenceDisplayInterfaceHash
-        metaEvidence.evidenceDisplayInterfaceURI =
-          process.env.NEW_EVIDENCE_DISPLAY_URI
-        return metaEvidence
-      })
+      )
+    ).map(metaEvidence => {
+      // Update the evidence display URI
+      metaEvidence.evidenceDisplayInterfaceURI =
+        process.env.NEW_EVIDENCE_DISPLAY_URI
+      return metaEvidence
+    })
 
-      const [
-        registrationMetaEvidenceURI,
-        removalMetaEvidenceURI
-      ] = await Promise.all(
-        newMetaEvidenceFiles.map(async metaEvidence => {
-          const fileData = new TextEncoder('utf-8').encode(
-            JSON.stringify(metaEvidence)
-          )
-          const buffer = Buffer.from(fileData)
-          const ipfsResponse = await fetch(`${process.env.IPFS_GATEWAY}/add`, {
-            method: 'POST',
-            body: JSON.stringify({
-              fileName: 'meta-evidence.json',
-              buffer
-            }),
-            headers: {
-              'content-type': 'application/json'
-            }
-          })
-
-          if (ipfsResponse.status === 500) {
-            console.error(ipfsResponse)
-            throw new Error(`Internal error on IPFS endpoint`)
+    console.info(' Uploading new meta evidence...')
+    const [
+      registrationMetaEvidenceURI,
+      removalMetaEvidenceURI
+    ] = await Promise.all(
+      newMetaEvidenceFiles.map(async metaEvidence => {
+        const fileData = new TextEncoder('utf-8').encode(
+          JSON.stringify(metaEvidence)
+        )
+        const buffer = Buffer.from(fileData)
+        const ipfsResponse = await fetch(`${process.env.IPFS_GATEWAY}/add`, {
+          method: 'POST',
+          body: JSON.stringify({
+            fileName: 'meta-evidence.json',
+            buffer
+          }),
+          headers: {
+            'content-type': 'application/json'
           }
-
-          const ipfsObject = (await ipfsResponse.json()).data
-          return `/ipfs/${ipfsObject[1].hash + ipfsObject[0].path}`
         })
-      )
 
-      const nonce = await signer.getTransactionCount()
-      gtcr
-        .changeMetaEvidence(
-          registrationMetaEvidenceURI,
-          removalMetaEvidenceURI,
-          { nonce }
-        )
-        .then(() =>
-          console.info('Done updating meta evidence for TCR at', address)
-        )
-        .catch(err =>
-          console.warn('Transaction failed for TCR at', address, err)
-        )
-    } catch (err) {
-      console.error(
-        'Error: Failed to update evidence display URI of TCR at',
-        address
+        const ipfsObject = (await ipfsResponse.json()).data
+        return `/ipfs/${ipfsObject[1].hash + ipfsObject[0].path}`
+      })
+    )
+
+    console.info(' Sending tx with nonce', nonce)
+    try {
+      await gtcr.changeMetaEvidence(
+        registrationMetaEvidenceURI,
+        removalMetaEvidenceURI,
+        {
+          nonce
+        }
       )
-      console.error(err)
+      successfullyUpdated.push(address)
+      console.info(' Done.')
+      nonce++
+    } catch (err) {
+      console.info(' Tx reverted. Continuing.')
+      txReverted.push({ gtcr, err })
     }
+  }
+
+  console.info()
+  console.info('Successfully updated TCRs')
+  successfullyUpdated.forEach(address => console.info(`  ${address}`))
+
+  console.info()
+  console.info('Tx reverted TCRs')
+  await Promise.all(
+    txReverted.map(async ({ gtcr, err }) => {
+      const governor = await gtcr.governor()
+      console.info(`  ${gtcr.address}, Governor: ${governor}`)
+      console.info(`    ${err.message}`)
+    })
+  )
 })()
