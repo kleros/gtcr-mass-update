@@ -163,10 +163,10 @@
   resolved "https://registry.yarnpkg.com/@kleros/ethereum-libraries/-/ethereum-libraries-1.1.0.tgz#09ed2c9f7f523aeb2d185c74b0a4093eec1204b1"
   integrity sha512-tgefywe7llnhr2JG07PcSbupq7a+cRdT+QL5TAXOF1yaN/EXIxYuXT3g4bdQD3TS5NSC7y2/gBs9qJ4Wy3khFw==
 
-"@kleros/tcr@1.8":
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/@kleros/tcr/-/tcr-1.8.0.tgz#11e0082f880ac980871c49741c67aa03b25a5ec4"
-  integrity sha512-rKEDLbCWtgj0rOqGtUpFmKu/wm6bwh9TrORBYPjsegpFSwtqzWQ7o3jeqphDxF+UgjIVkf8A/s9vRT2jZILxRA==
+"@kleros/tcr@^1.9.0-alpha.0":
+  version "1.9.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@kleros/tcr/-/tcr-1.9.0-alpha.0.tgz#6778d76c925c18de78124f717498d6a3039e6cc8"
+  integrity sha512-YyIwq/+zaJ8fJJ2080z/GHGt9P6X+dUCA4HlC2AOUW7UJqgAn1DV9c8zHDq4b5uHKC2vY/AuirN7bs2lPVSk9A==
   dependencies:
     "@kleros/erc-792" "^3.0.0"
     "@kleros/ethereum-libraries" "^1.0.0"
@@ -545,13 +545,13 @@ bignumber.js@^7.2.1:
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-7.2.1.tgz#80c048759d826800807c4bfd521e50edbba57a5f"
   integrity sha512-S4XzBk5sMB+Rcb/LNcpzXr57VRTxgAvaAEDAl1AwRx27j00hT84O6OkteE7u8UB3NuaaygCRrEpqox4uDOrbdQ==
 
-"bignumber.js@git+https://github.com/debris/bignumber.js#master":
-  version "2.0.7"
-  resolved "git+https://github.com/debris/bignumber.js#c7a38de919ed75e6fb6ba38051986e294b328df9"
-
 "bignumber.js@git+https://github.com/debris/bignumber.js.git#94d7146671b9719e00a09c29b01a691bc85048c2":
   version "2.0.7"
   resolved "git+https://github.com/debris/bignumber.js.git#94d7146671b9719e00a09c29b01a691bc85048c2"
+
+"bignumber.js@git+https://github.com/debris/bignumber.js.git#master":
+  version "2.0.7"
+  resolved "git+https://github.com/debris/bignumber.js.git#c7a38de919ed75e6fb6ba38051986e294b328df9"
 
 binary-extensions@^2.0.0:
   version "2.0.0"
