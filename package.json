@@ -1,0 +1,60 @@
+{
+  "name": "gtcr-mass-update",
+  "version": "1.0.0",
+  "description": "Update evidenceDisplayURI on multiple GTCR contracts",
+  "main": "index.js",
+  "author": "Kleros",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "nodemon -r dotenv/config index.js",
+    "lint:eslint:fix": "eslint '**/*.js' --fix",
+    "lint:prettier:fix": "prettier --write '**/*.js'",
+    "format": "yarn run lint:eslint:fix && yarn run lint:prettier:fix",
+    "release": "standard-version"
+  },
+  "dependencies": {
+    "@kleros/tcr": "1.8",
+    "dotenv": "^8.2.0",
+    "ethers": "^4.0.47",
+    "node-fetch": "^2.6.0",
+    "text-encoder-lite": "^2.0.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.2.0",
+    "eslint": "^6.7.2",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-config-standard": "^13.0.1",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "eslint-plugin-unicorn": "^9.1.1",
+    "husky": "^3.1.0",
+    "nodemon": "^2.0.1",
+    "prettier": "^1.19.1",
+    "standard-version": "^7.0.1"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "ignore": [
+      "/node_modules/**"
+    ],
+    "globals": [
+      "require"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn format",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}
