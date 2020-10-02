@@ -11,7 +11,14 @@
 
 Target audience: Generalized TCR developers.
 
-Sometimes, when developing a new evidence display interface, it is useful to update the meta evidence of multiple GTCR deployments at once. This tool does precisely that. Of course, the wallet provided must be the governor of the target GTCR.
+When working with multiple lists, updating just the evidence display can be very time consuming and error-prone. Instead of doing it manually you can use this tool.
+
+There are two modes of operation:
+1. GENERATE: Here the tool does not send transactions to the blockchain. Instead it generates the meta evidence
+files, uploads it to ipfs and gives you the URIs.
+2. SEND: In this mode the tool does everything.
+
+You can set the operation mode via the `MODE` env variable.
 
 ## Prerequisites
 

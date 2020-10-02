@@ -72,3 +72,5 @@ key/*.pem
 
 # IDE configuration
 .vscode
+
+generated

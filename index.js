@@ -2,6 +2,7 @@ const { getAddress } = require('ethers/utils')
 const { ethers } = require('ethers')
 const fetch = require('node-fetch')
 const TextEncoder = require('text-encoder-lite').TextEncoderLite
+const writeJsonFile = require('write-json-file')
 const _GeneralizedTCR = require('@kleros/tcr/build/contracts/GeneralizedTCR.json')
 
 let contractAddresses
@@ -79,35 +80,45 @@ const signer = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider)
       })
     )
 
-    console.info(' Sending tx with nonce', nonce)
-    try {
-      await gtcr.changeMetaEvidence(
+    if (process.env.MODE === 'SEND') {
+      console.info(' Sending tx with nonce', nonce)
+      try {
+        await gtcr.changeMetaEvidence(
+          registrationMetaEvidenceURI,
+          removalMetaEvidenceURI,
+          {
+            nonce
+          }
+        )
+        successfullyUpdated.push(address)
+        console.info(' Done.')
+        nonce++
+      } catch (err) {
+        console.info(' Tx reverted. Continuing.')
+        txReverted.push({ gtcr, err })
+      }
+    } else if (process.env.MODE === 'GENERATE') {
+      console.info(`Generating for ${gtcr.address}`)
+      await writeJsonFile(`generated/${gtcr.address}.json`, {
         registrationMetaEvidenceURI,
-        removalMetaEvidenceURI,
-        {
-          nonce
-        }
-      )
-      successfullyUpdated.push(address)
-      console.info(' Done.')
-      nonce++
-    } catch (err) {
-      console.info(' Tx reverted. Continuing.')
-      txReverted.push({ gtcr, err })
-    }
+        removalMetaEvidenceURI
+      })
+    } else throw new Error('Invalid mode.')
   }
 
-  console.info()
-  console.info(`Successfully updated TCRs: ${successfullyUpdated.length}`)
-  successfullyUpdated.forEach(address => console.info(`  ${address}`))
+  if (process.env.MODE === 'SEND') {
+    console.info()
+    console.info(`Successfully updated TCRs: ${successfullyUpdated.length}`)
+    successfullyUpdated.forEach(address => console.info(`  ${address}`))
 
-  console.info()
-  console.info(`Tx reverted TCRs: ${txReverted.length}`)
-  await Promise.all(
-    txReverted.map(async ({ gtcr, err }) => {
-      const governor = await gtcr.governor()
-      console.info(`  ${gtcr.address}, Governor: ${governor}`)
-      console.info(`    ${err.message}`)
-    })
-  )
+    console.info()
+    console.info(`Tx reverted TCRs: ${txReverted.length}`)
+    await Promise.all(
+      txReverted.map(async ({ gtcr, err }) => {
+        const governor = await gtcr.governor()
+        console.info(`  ${gtcr.address}, Governor: ${governor}`)
+        console.info(`    ${err.message}`)
+      })
+    )
+  }
 })()

@@ -19,7 +19,8 @@
     "dotenv-safe": "^8.2.0",
     "ethers": "^4.0.47",
     "node-fetch": "^2.6.1",
-    "text-encoder-lite": "^2.0.0"
+    "text-encoder-lite": "^2.0.0",
+    "write-json-file": "^4.3.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
