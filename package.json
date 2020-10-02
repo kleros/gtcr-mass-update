@@ -7,7 +7,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "nodemon -r dotenv/config index.js",
+    "go": "node -r dotenv-safe/config index.js",
+    "dev": "nodemon -r dotenv-safe/config index.js",
     "lint:eslint:fix": "eslint '**/*.js' --fix",
     "lint:prettier:fix": "prettier --write '**/*.js'",
     "format": "yarn run lint:eslint:fix && yarn run lint:prettier:fix",
@@ -15,7 +16,7 @@
   },
   "dependencies": {
     "@kleros/tcr": "^1.9.0-alpha.0",
-    "dotenv": "^8.2.0",
+    "dotenv-safe": "^8.2.0",
     "ethers": "^4.0.47",
     "node-fetch": "^2.6.0",
     "text-encoder-lite": "^2.0.0"

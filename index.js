@@ -4,26 +4,6 @@ const fetch = require('node-fetch')
 const TextEncoder = require('text-encoder-lite').TextEncoderLite
 const _GeneralizedTCR = require('@kleros/tcr/build/contracts/GeneralizedTCR.json')
 
-if (!process.env.PROVIDER_URL)
-  throw new Error(
-    'No web3 provider set. Please set the PROVIDER_URL environment variable'
-  )
-
-if (!process.env.CONTRACTS)
-  throw new Error(
-    'Contracts array not set. Please set the CONTRACTS environment variable'
-  )
-
-if (!process.env.WALLET_PRIVATE_KEY)
-  throw new Error(
-    'Wallet key not set. Please set the WALLET_PRIVATE_KEY environment variable'
-  )
-
-if (!process.env.NEW_EVIDENCE_DISPLAY_URI)
-  throw new Error(
-    'New evidence display interface URI not set. Please set the NEW_EVIDENCE_DISPLAY_URI environment variable'
-  )
-
 let contractAddresses
 try {
   contractAddresses = JSON.parse(process.env.CONTRACTS)
@@ -118,11 +98,11 @@ const signer = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider)
   }
 
   console.info()
-  console.info('Successfully updated TCRs')
+  console.info(`Successfully updated TCRs: ${successfullyUpdated.length}`)
   successfullyUpdated.forEach(address => console.info(`  ${address}`))
 
   console.info()
-  console.info('Tx reverted TCRs')
+  console.info(`Tx reverted TCRs: ${txReverted.length}`)
   await Promise.all(
     txReverted.map(async ({ gtcr, err }) => {
       const governor = await gtcr.governor()
