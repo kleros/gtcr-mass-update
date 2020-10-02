@@ -51,13 +51,15 @@ const signer = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider)
       // Update the evidence display URI
       metaEvidence.evidenceDisplayInterfaceURI =
         process.env.NEW_EVIDENCE_DISPLAY_URI
+
+      delete metaEvidence.evidenceDisplayInterfaceHash
       return metaEvidence
     })
 
     console.info(' Uploading new meta evidence...')
     const [
       registrationMetaEvidenceURI,
-      removalMetaEvidenceURI
+      clearingMetaEvidenceURI
     ] = await Promise.all(
       newMetaEvidenceFiles.map(async metaEvidence => {
         const fileData = new TextEncoder('utf-8').encode(
@@ -85,7 +87,7 @@ const signer = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider)
       try {
         await gtcr.changeMetaEvidence(
           registrationMetaEvidenceURI,
-          removalMetaEvidenceURI,
+          clearingMetaEvidenceURI,
           {
             nonce
           }
@@ -101,7 +103,7 @@ const signer = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider)
       console.info(`Generating for ${gtcr.address}`)
       await writeJsonFile(`generated/${gtcr.address}.json`, {
         registrationMetaEvidenceURI,
-        removalMetaEvidenceURI
+        clearingMetaEvidenceURI
       })
     } else throw new Error('Invalid mode.')
   }
