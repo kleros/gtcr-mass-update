@@ -1,5 +1,5 @@
 <p align="center">
-  <b style="font-size: 32px;">Generalized TCR Mass evidence display URI update</b>
+  <b style="font-size: 32px;">Curate Mass evidence display URI update</b>
 </p>
 
 <p align="center">
@@ -9,7 +9,7 @@
   <a href="https://github.com/prettier/prettier"><img src="https://img.shields.io/badge/styled_with-prettier-ff69b4.svg" alt="Styled with Prettier"></a>
 </p>
 
-Target audience: Generalized TCR developers.
+Target audience: Curate developers.
 
 When working with multiple lists, updating just the evidence display can be very time consuming and error-prone. Instead of doing it manually you can use this tool.
 
